@@ -1,0 +1,6 @@
+__pycache__
+.venv
+~*.docx
+links_per_thread/*
+merged_links/*
+ofertas/*
