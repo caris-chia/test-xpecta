@@ -9,15 +9,15 @@ from st_aggrid import AgGrid, GridOptionsBuilder
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# dir=path.Path(__file__).absolute()
-# sys.path.append(dir.parent)
-# print(dir)
+base_dir=path.Path(__file__).absolute().parent
 
 # Título de la aplicación
 st.title('Apartamentos en venta en Bogotá D.C')
 
-file_path = '/Users/carisandreachiaamaya/Documents/prueba_tecnica_xpecta/limpieza_y_analisis_de_datos/cleaned_data_for_regression.csv'
+file_path = f"{base_dir}/cleaned_data_for_regression.csv"
 df = pd.read_csv(file_path)
+
+st.write('La tabla a continuación muestra una lista detallada de apartamentos en venta dentro del área delimitada por la Carrera 30, la Calle 26, la Calle 72 y la Avenida Boyacá en Bogotá. Cada propiedad incluye información sobre el precio, la ubicación, el número de habitaciones, y más detalles para facilitar su análisis.')
 
 # Renombrar las columnas a español
 df.rename(columns={
@@ -63,7 +63,6 @@ selected_variable = st.sidebar.selectbox(
 
 # Mostrar el DataFrame filtrado con opciones de filtrado interactivo
 
-
 # Configurar AgGrid para la tabla interactiva
 gb = GridOptionsBuilder.from_dataframe(filtered_df)
 gb.configure_pagination(paginationAutoPageSize=True)
@@ -99,8 +98,7 @@ for _, row in filtered_df.iterrows():
     ).add_to(m)
 
 # Mostrar el mapa interactivo
-st.write('La tabla a continuación muestra una lista detallada de apartamentos en venta dentro del área delimitada por la Carrera 30, la Calle 26, la Calle 72 y la Avenida Boyacá en Bogotá. Cada propiedad incluye información sobre el precio, la ubicación, el número de habitaciones, y más detalles para facilitar su análisis.')
-
+    
 st.subheader('Mapa Interactivo de las Propiedades')
 folium_static(m)
 
