@@ -4,7 +4,6 @@ import folium
 from streamlit_folium import folium_static
 import plotly.express as px
 import path
-import sys
 from st_aggrid import AgGrid, GridOptionsBuilder
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -58,10 +57,11 @@ filtered_df = filtered_df[columns_order]
 st.sidebar.header('Configuración de Visualización')
 selected_variable = st.sidebar.selectbox(
     'Seleccione la variable para el análisis descriptivo:',
-    options=['precio', 'área_construida', 'área_privada', 'baños', 'habitaciones', 'parqueaderos', 'estrato_social', 'precio_por_metro_cuadrado']
+    options=['precio', 'área_construida', 'baños', 'habitaciones', 'parqueaderos', 'estrato_social', 'precio_por_metro_cuadrado']
 )
 
 # Mostrar el DataFrame filtrado con opciones de filtrado interactivo
+
 
 # Configurar AgGrid para la tabla interactiva
 gb = GridOptionsBuilder.from_dataframe(filtered_df)
@@ -98,14 +98,14 @@ for _, row in filtered_df.iterrows():
     ).add_to(m)
 
 # Mostrar el mapa interactivo
-    
+st.write('El siguiente mapa interactivo utiliza marcadores para indicar la ubicación de cada propiedad, dichos marcadores se encuentran distribuidos principalmente en una zona urbana, específicamente en localidades como Teusaquillo y sus alrededores, dentro de la ciudad. Por medio de las opciones de navegación como zoom se puede explorar diferentes niveles de detalle del área.')
+
 st.subheader('Mapa Interactivo de las Propiedades')
 folium_static(m)
 
-# Mostrar el DataFrame filtrado con opciones de filtrado interactivo
-st.subheader('Apartamentos en venta entre la Carrera 30, la Calle 26, la Calle 72 y la Avenida Boyacá')
 # Visualización descriptiva de la data
-st.subheader('Análisis Descriptivo de la Variable Seleccionada')
+st.subheader('Análisis Descriptivo de diferentes variables')
+st.write('Con el filtro que se encuentra a la izquierda de la pantalla, se puede explorar diferentes análisis descriptivos de las variables que contiene la base de datos. En términos de precios, la mayor concentración está en el rango de 0.4B, con algunos valores atípicos que alcanzan hasta 1.2B. La distribución del área construida muestra que la mayoría de las propiedades tienen entre 50 y 100 metros cuadrados, siendo menos comunes las áreas mayores a 150 m². En cuanto a la cantidad de baños y habitaciones, se observa que la mayoría de las propiedades tienen 2 baños y 3 habitaciones respectivamente, lo cual es consistente con propiedades de tamaño medio orientadas a familias. En cuanto a parqueaderos, la mayoría de las propiedades tienen uno, lo cual era de esperarse ya que son propiedades urbanas. La distribución del estrato social muestra que el estrato 4 es el más común, seguido por el estrato 5, lo que podría sugerir que estas propiedades se encuentran en áreas de clase media-alta y las propiedades de menor estrato no suelen ser publicadas en inmobiliarias. Finalmente, la distribución del precio por metro cuadrado varía principalmente entre 4 Millones de pesos colombianos y 8 Millones de pesos colombianos, lo cual refleja una variabilidad importante en el costo dependiendo de la ubicación y características específicas de cada propiedad.')
 
 # Mostrar estadísticas descriptivas generales para la variable seleccionada
 st.write(f"Estadísticas descriptivas para {selected_variable}:")
@@ -114,22 +114,17 @@ st.write(filtered_df[selected_variable].describe())
 # Histograma de la variable seleccionada
 st.subheader(f'Distribución de {selected_variable}')
 fig = px.histogram(filtered_df, x=selected_variable, nbins=30, title=f'Distribución de {selected_variable}')
+
+# Ajustar el eje X para que muestre solo números enteros si corresponde a ciertas variables
+if selected_variable in ['baños', 'habitaciones', 'parqueaderos', 'estrato_social']:
+    fig.update_xaxes(dtick=1)
+
 st.plotly_chart(fig)
+
 
 # Gráfico de dispersión de área construida vs. precio
 st.subheader('Relación entre Área Construida y Precio')
 fig = px.scatter(filtered_df, x='área_construida', y='precio', title='Relación entre Área Construida y Precio', labels={'área_construida': 'Área Construida', 'precio': 'Precio'})
-st.plotly_chart(fig)
-
-# Gráfico de barras de estrato social
-st.subheader('Distribución del Estrato Social')
-
-# Obtener la distribución del estrato social y ajustar los nombres de columna
-social_stratum_counts = filtered_df['estrato_social'].value_counts().reset_index()
-social_stratum_counts.columns = ['Estrato Social', 'Cantidad']
-
-# Crear el gráfico de barras con los nombres de columna corregidos
-fig = px.bar(social_stratum_counts, x='Estrato Social', y='Cantidad', title='Distribución del Estrato Social')
 st.plotly_chart(fig)
 
 # Top 5 de barrios más costosos y más económicos por metro cuadrado
@@ -147,7 +142,7 @@ st.plotly_chart(fig)
 # Top 5 barrios más económicos por metro cuadrado
 top_5_cheap_sqm = average_price_per_sqm_per_location.nsmallest(5, 'precio_por_metro_cuadrado')
 fig = px.bar(top_5_cheap_sqm, x='ubicación_principal', y='precio_por_metro_cuadrado', title='Top 5 Barrios Más Económicos por Metro Cuadrado', labels={'ubicación_principal': 'Barrio', 'precio_por_metro_cuadrado': 'Precio Promedio por Metro Cuadrado'})
-st.write('En la siguiente gráfica se muestra el top 5 de barrios más económicos por metro cuadrado. Estos barrios, al tener precios más accesibles, pueden ofrecer oportunidades atractivas para aquellos compradores que buscan una relación calidad-precio más asequible. Los bajos precios pueden deberse a una menor demanda, la disponibilidad de servicios o la localización en zonas menos concurridas en comparación con los barrios más costosos. Esta información puede ser útil para aquellos que buscan alternativas económicas dentro del mercado inmobiliario de Bogotá.')
+st.write('Respecto al top 5 de barrios más económicos por metro cuadrado. Estos barrios, al tener precios más accesibles, pueden ofrecer oportunidades atractivas para aquellos compradores que buscan una relación calidad-precio más asequible. Los bajos precios pueden deberse a una menor demanda, la disponibilidad de servicios o la localización en zonas menos concurridas en comparación con los barrios más costosos. Esta información puede ser útil para aquellos que buscan alternativas económicas dentro del mercado inmobiliario de Bogotá.')
 st.plotly_chart(fig)
 
 # Distribución geográfica del precio por metro cuadrado
@@ -168,6 +163,7 @@ folium_static(folium_map)
 
 # Análisis de correlación entre variables numéricas
 st.subheader('Mapa de Calor de Correlaciones entre Variables Numéricas')
+st.write('El mapa de calor muestra las correlaciones entre distintas variables numéricas del conjunto de datos sobre propiedades. La correlación se mide con valores entre -1 y 1, donde valores cercanos a 1 indican una fuerte correlación positiva, valores cercanos a -1 indican una fuerte correlación negativa, y valores cercanos a 0 indican una débil o nula relación.\n\nPrecio y Área Construida: Existe una correlación positiva significativa de 0.67, lo cual sugiere que el precio de las propiedades tiende a aumentar a medida que el área construida aumenta.\n\nPrecio y Baños: La correlación es de 0.55, indicando una relación moderada, donde un mayor número de baños también se asocia con un incremento en el precio.\n\nÁrea Construida y Baños: La correlación entre estas variables es de 0.62, lo cual muestra que el área construida tiene una relación considerable con la cantidad de baños, sugiriendo que las propiedades más grandes tienden a tener más baños.\n\nPrecio y Parqueaderos: Hay una correlación de 0.62 entre el precio y la cantidad de parqueaderos, lo cual indica que las propiedades con más parqueaderos suelen tener precios más altos.\n\nÁrea Privada: Esta variable tiene correlaciones bajas con la mayoría de las otras variables, indicando que no tiene una relación significativa con el precio, el área construida o el número de baños.\n\nPrecio por Metro Cuadrado y Área Construida: Existe una correlación negativa de -0.44, lo que implica que, a medida que el área construida aumenta, el precio por metro cuadrado tiende a disminuir, probablemente debido a economías de escala.\n\nHabitaciones: La correlación entre el número de habitaciones y otras variables, como el precio (0.31) y el área construida (0.59), indica que, aunque hay una cierta relación positiva, no es tan fuerte como con otras características.')
 correlation_matrix = filtered_df[['precio', 'área_construida', 'área_privada', 'baños', 'habitaciones', 'parqueaderos', 'precio_por_metro_cuadrado']].corr()
 fig, ax = plt.subplots(figsize=(10, 8))
 sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', ax=ax)
@@ -179,7 +175,3 @@ property_count_per_location = filtered_df['ubicación_principal'].value_counts()
 property_count_per_location.columns = ['Barrio', 'Cantidad de Propiedades']
 fig = px.bar(property_count_per_location, x='Barrio', y='Cantidad de Propiedades', title='Cantidad de Propiedades por Barrio', labels={'Barrio': 'Barrio', 'Cantidad de Propiedades': 'Cantidad'})
 st.plotly_chart(fig)
-
-# Nota: Asegúrate de tener los siguientes paquetes instalados:
-# streamlit, pandas, folium, streamlit-folium, plotly, streamlit-aggrid, seaborn, matplotlib
-# Puedes instalarlos con: pip install streamlit pandas folium streamlit-folium plotly streamlit-aggrid seaborn matplotlib
