@@ -171,6 +171,7 @@ st.pyplot(fig)
 
 # Frecuencia de propiedades en el mercado por barrio
 st.subheader('Frecuencia de Propiedades en el Mercado por Barrio')
+st.write('La siguiente gráfica muestra la distribución de la cantidad de apartamentos disponibles para la venta en diferentes barrios de Bogotá. Se destaca una fuerte concentración de ofertas en el barrio Nicolás de Federmán, seguido por barrios como Normandía y Engativá. La distribución tiene varia significativamente, con una notable caída en el número de registros después de los primeros barrios y una larga cola de zonas con muy pocas ofertas donde puede haber oportunidad de oferta.')
 property_count_per_location = filtered_df['ubicación_principal'].value_counts().reset_index()
 property_count_per_location.columns = ['Barrio', 'Cantidad de Propiedades']
 fig = px.bar(property_count_per_location, x='Barrio', y='Cantidad de Propiedades', title='Cantidad de Propiedades por Barrio', labels={'Barrio': 'Barrio', 'Cantidad de Propiedades': 'Cantidad'})
